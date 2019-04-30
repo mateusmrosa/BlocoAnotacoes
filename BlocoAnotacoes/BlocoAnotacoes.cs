@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace BlocoAnotacoes
 
             public void Inserir(string titulo, string texto, DateTime data)
             {
-                Anotacao anotacao = new Anotacao( titulo, texto, data);
+                Anotacao anotacao = new Anotacao(titulo, texto, data);
                 Anotacoes.Add(anotacao);
                 _numPaginas += 1;
             }
@@ -47,44 +48,75 @@ namespace BlocoAnotacoes
                 _numPaginas += 1;
             }
 
-            public Anotacao BuscaAnotacao(string titulo)
+            public Anotacao Buscar(string titulo)
             {
-                return _Anotacoes.Find(x => x.Titulo.Contains(titulo));
+                Anotacao retorno = null;
+                for (int i = 0; i <= Anotacoes.Count(); i++)
+                {
+                    if (Anotacoes[i].Titulo == titulo)
+                    {
+                        retorno = new Anotacao();
+                        retorno.Data = Anotacoes[i].Data;
+                        retorno.Titulo = Anotacoes[i].Titulo;
+                        retorno.Texto = Anotacoes[i].Texto;
+                    }
+                }
+                return retorno;
             }
 
-            public Boolean BuscaAnotacoes(Anotacao anotacao)
+            public List<Anotacao> BuscarTodas(string filtro)
             {
-                return _Anotacoes.Contains(anotacao);
-            }
-
-            public List<Anotacao> BuscaAnotacoes(string filtro)
-            {
-                List<Anotacao> ListaAux= null;
+                List<Anotacao> ListaAux = null;
                 foreach (Anotacao nota in _Anotacoes)
                 {
-                    if (nota.Texto == filtro || nota.Titulo == filtro)
+                    if (nota.Texto.IndexOf(filtro) > 0 || nota.Titulo.IndexOf(filtro) > 0)
                     {
-                        if (ListaAux.Count == 0)
+                        if (ListaAux == null)
                             ListaAux = new List<Anotacao>();
-
+                        ListaAux.Add(nota);
                     }
                 }
                 return ListaAux;
             }
 
-            //public Anotacao GetAnotacao(int index)
-            //{
-            //    Anotacao anot = new Anotacao();
-            //    for (int i = 0; i <= _Anotacoes.Count - 1; i++)
-            //    {
-            //        if (_Anotacoes[i].Index == index)
-            //        {
-            //            anot = _Anotacoes[i];
-            //            break;
-            //        }
-            //    }
-            //    return anot;
-            //}
+            public List<Anotacao> BuscarTodasData(DateTime Data)
+            {
+                List<Anotacao> ListaAux = null;
+                foreach (Anotacao nota in _Anotacoes)
+                {
+                    if (nota.Data == Data)
+                    {
+                        if (ListaAux == null)
+                            ListaAux = new List<Anotacao>();
+                        ListaAux.Add(nota);
+                    }
+                }
+                return ListaAux;
+            }
+
+            public void Apagar(Anotacao anotacao)
+            {
+                foreach (Anotacao nota in _Anotacoes)
+                {
+                    if (nota == anotacao)
+                    {
+                        _Anotacoes.Remove(nota);
+                    }
+                }
+
+            }
+
+            public void Salvar(Anotacao anotacao)
+            {
+                StreamWriter salvar = new StreamWriter(@"c:\bloco.txt");
+                string linha = "";
+                foreach (Anotacao nota in _Anotacoes)
+                {
+                    linha += nota.Data + "|" + nota.Titulo + "|" + nota.Texto;
+                    salvar.WriteLine(linha);
+                }
+                salvar.Close();
+            }
 
             public string Nome { get => _nome; set => _nome = value; }
             public int NumPaginas { get => _numPaginas; set => _numPaginas = value; }
